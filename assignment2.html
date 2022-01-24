@@ -40,11 +40,59 @@
                 <img src="button scheme.png" width=400></a>
             </p>
             <p>
-                How these calculations for resistors and the schematics are shown above. There are two circuits here and they interact through the code.
+                The calculations for resistors and the schematics are shown above. There are two circuits here and they interact through the code.
+            </p>
+
+
+                        <h3>
+            The functioning button
+            </h3>
+            <p>
+                <img src="button gif.GIF" width=400></a>
+            </p>
+<p> 
+    The green LED lights up when the push button is pressed.
+</p>
+             <h2>
+            Fade system
+            </h2>
+                        <h3>
+            The circuits
+            </h3>
+            <p>
+            <img src="rgb circ.jpg" width=400></a>
+            <img src="rgb circ 2.jpg" width=400></a>
+            </p>
+            <p>
+            Here are two angles of the circuits of the whole set up, these pictures were taken to highlight the rgb LED that completes the fade, red is connected to 
+            PIN 9~, green is PIN 10~ and blue is PIN 11~, the ~ pins allow for the fading. As well as each is connected to a 220 ohm resistor, and the whole LED goes to ground.
             </p>
                         <h3>
+            The schematics/calculations
+            </h3>
+            <p>
+                <img src="rgb scheme.png" width=400></a>
+            </p>
+            <p>
+                The calculations for resistors and the schematics are shown above. There is one circuit using the rgb LED.
+            </p>
+                        <h3>
+            The functioning fade
+            </h3>
+            <p>
+                <img src="rgbgif.GIF" width=400></a>
+            </p>
+<p> 
+    The LED fades from red, green to blue.
+</p>
+
+            <h3>
             The combined code
             </h3>
+<p> 
+    Again if the two functions are seperated out, each system works but when uploaded as seen below, only the fade works, 
+    but theoretically they both should work as the circuits and code is correct, the theory is that the arduino cant handle both interactions. 
+</p>
 <pre><code>
 
 const int buttonPin = 2;     // the number of the button pin
@@ -99,22 +147,6 @@ void loop() {
 
 </pre></code>
 
-                        <h3>
-            The functioning button
-            </h3>
-            <p>
-                <img src="button gif.GIF" width=400></a>
-            </p>
-<p> 
-    The green LED lights up when the push button is pressed.
-</p>
-             <h2>
-            Fade system
-            </h2>
-            <p>
-            <img src="IMG_7918.jpg" width=400></a>
-            <img src="IMG_7919.jpg" width=400></a>
-            </p>
         </div>
         
     </body>
