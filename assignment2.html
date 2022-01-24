@@ -146,7 +146,67 @@ void loop() {
 }
 
 </pre></code>
+<p> 
+The two codes seperated, first is the button code and second is the rgb fade.
+</p>
+<pre><code>
 
+const int buttonPin = 2;     // the number of the button pin
+const int ledPin =  13;      // the number of the LED pin
+
+
+int buttonState = 0;         // variable for reading the button status
+
+void setup() {
+  // initialize the LED pin as an output:
+  pinMode(ledPin, OUTPUT);
+  // initialize the pushbutton pin as an input:
+  pinMode(buttonPin, INPUT);
+}
+
+void loop() {
+
+  //the button code
+          // read the state of the button value:
+          buttonState = digitalRead(buttonPin);
+        
+          // check if the button is pressed. If it is, the buttonState is HIGH:
+          if (buttonState == HIGH) {
+            // turn green LED on:
+            digitalWrite(ledPin, HIGH);
+          } else {
+            // turn green LED off:
+            digitalWrite(ledPin, LOW);
+          }
+ }
+ </pre></code>
+<pre><code>
+    void setup() {
+  // nothing happens in setup
+}
+
+void loop() {
+  
+  for (int pinNum = 9; pinNum <= 11; pinNum ++) {
+
+  // fade in from min to max in increments of 5 points:
+    for (int fadeValue = 0 ; fadeValue <= 255; fadeValue += 5) {
+      // sets the value (range from 0 to 255):
+      analogWrite(pinNum, fadeValue);
+      // wait for 30 milliseconds to see the dimming effect
+      delay(30);
+    }
+  
+    // fade out from max to min in increments of 5 points:
+    for (int fadeValue = 255 ; fadeValue >= 0; fadeValue -= 5) {
+      // sets the value (range from 0 to 255):
+      analogWrite(pinNum, fadeValue);
+      // wait for 30 milliseconds to see the dimming effect
+      delay(30);
+    }
+  }
+}
+ </pre></code>
         </div>
         
     </body>
