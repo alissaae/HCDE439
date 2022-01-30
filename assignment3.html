@@ -22,50 +22,98 @@
             Above is the circuit that contains a photoresistor and 10k ohm resistor connected via A0, and a green LED with a 220 ohm resistor. 
 </p>
             <p>
-             <img src="Scanned Documents (9)-1.png" width=400></a>
-             <img src="Scanned Documents (9)-2.png" width=400></a>
+             <img src="scheme3.jpg" width=400></a>
 
 </p>
             <p>
-            Above is the calculations for the type of resistor used and the schematic of the circuits.
+            Above is the calculations for the type of resistors used and the schematic of the circuits.
+            Also, the calcuation for the possible Vouts given the variating resistance of the photoresistor.
 </p>
 <p>
-    Below is the Ardunio code that the board is using, making each LED blink. 
-    Each LED blinks independently. Each line of code with content has a short comment explaining what the line does.
+    Below is the Ardunio code that the board is using, first calibrating to the environments light. This 
+    is in set up, setting the minimum and maximum values. 
+    Then the code to change and constrain those values into something the LED can understand, and finally, writing to the LED what to do.
 </p>
 <p>
 <pre><code>
-//constant ints wont change, easier to change up pins
-const int GreenPin = 13; //number of Green LED pin
-const int YellowPin = 12; //number of Yellow LED pin
-const int RedPin = 2; //number of Red LED pin
+/* Alissa Acheson A3
+ * This code uses an LED hooked up to PIN ~9
+ * and a photoresistor (& 10k resistor)
+ * hooked up to A0 
+ * 
+ */
 
+
+//some code adapted from Examples > Analog > Calibration
+//from the arduino IDE as well as some inclass code from L4 and 5
+
+int initalVal = 0;      //the value of the sensor
+int sMin = 1023;        // minimum value of the sensor
+int sMax = 0;           // maximum value of the sensor
 
 void setup() {
-  
-  pinMode(GreenPin, OUTPUT); //intialize pin 13 as an output, connected to power and ground
-  pinMode(YellowPin, OUTPUT); //intialize pin 12 as an output, connected to power and ground
-  pinMode(RedPin, OUTPUT); //intialize pin 2 as an output, connected to power and ground
+  //to tell when calibration is occuring
+  //turns on the LED built into the arduino board
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
 
+  // calibrate during the first five seconds
+  //millis returns the number of milliseconds passed since the Arduino board 
+  //began running the current program. 
+  while (millis() < 5000) {
+    //check the value
+    initalVal = analogRead(A0);
+
+    //check to see how environment values compares 
+    //to 1023
+    if (initalVal > sMax) {
+     // record the maximum value of the sensor
+      sMax = initalVal;
+    }
+
+    //check to see how environment values compares 
+    //to 0
+    if (initalVal < sMin) {
+      // record the minimum value of the sensor
+      sMin = initalVal;
+    }
+  }
+
+  // turn off the light to signal the end of the calibration period
+  digitalWrite(13, LOW);
+  //to send start the serial data collection
+  Serial.begin(9600);
 }
 
-// the loop function runs over and over again forever
 void loop() {
-  digitalWrite(GreenPin, HIGH);   // turn LED on connect to power
-  delay(1000);              // wait for a second
-  digitalWrite(GreenPin, LOW);    // turn the LED off connect to ground
-  delay(500);               //wait for half a second
+  //reading in the value from the photosensor, 
+  //values are between 0 and 1023
+  initalVal = analogRead(A0);
 
-  digitalWrite(YellowPin, HIGH);   // turn LED on connect to power
-  delay(1000);              // wait for a second
-  digitalWrite(YellowPin, LOW);    // turn the LED off connect to ground
-  delay(500);               //wait for half a second
 
-  digitalWrite(RedPin, HIGH);   // turn LED on connect to power
-  delay(1000);              // wait for a second
-  digitalWrite(RedPin, LOW);    // turn the LED off connect to ground
-  delay(500);               //wait for half a second
-  
+//code for testing
+//this reads the photosensors values from A0
+//into the serial for viewing (tools-> serial monitor or plotter)
+  Serial.print("sensor = "); // label for value
+  Serial.println(initalVal); //value
+  delay(1);     //one millisecond pause
+
+//this value limits the sensor to be within a range
+ initalVal = constrain(initalVal, sMin, sMax);
+ 
+//map takes the constrained value and remaps it to a new range 
+//that was calibrated in the setup of this document
+//this range being one appropriate for LED brightness (0-225)
+ initalVal = map(initalVal, sMin, sMax, 0, 225);
+ 
+//writes to the LED in pin 9 a value from 0-225
+//0 being off and 225 being on
+ analogWrite(9,initalVal);
+
+//code for testing while building:
+//is the light working?
+//digitalWrite(9, HIGH);
+
 
 }
 
@@ -74,10 +122,12 @@ void loop() {
 
 
             <p>
-            Below is the final operation, using a GIF the lights blink on one second then turn off a half second, but they go in succession, looped to go on forever. 
+            Below is the final operation, two gifs show the light turning on during calibration and the other being the true function of the circuit,
+            the LED turning on and off with the varying resistance of the photoresistor.
 </p>
 <p>
-<img src="blinkgif.GIF" width=400></a>
+<img src="gif1.GIF" width=400></a>
+<img src="gif2.GIF" width=400></a>
 </p>
                 <p>
 
