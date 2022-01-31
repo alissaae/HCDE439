@@ -24,15 +24,15 @@
             <p>
              <img src="scheme3n.jpg" width=800></a>
 
-</p>
+            </p>
             <p>
-            Above is the calculations for the type of resistors used and the schematic of the circuits.
-            Also, the calcuation for the possible Vouts given the variating resistance of the photoresistor.
-</p>
+            Above is the calculations for the type of resistors (220 and 10k) used and the schematic of the circuits.
+            Also, the calcuation for the possible Vouts given the variating resistance of the photoresistor, using resistances measured using a multimeter (covering the photoresistor and then exposing it to a flashlight).
+            </p>
 <p>
     Below is the Ardunio code that the board is using, first calibrating to the environments light. This 
     is in set up, setting the minimum and maximum values. 
-    Then the code to change and constrain those values into something the LED can understand, and finally, writing to the LED what to do.
+    Then the code to change and constrain those values into something the LED can understand (0-225), and finally, writing to the LED what to do.
 </p>
 <p>
 <pre><code>
@@ -122,8 +122,10 @@ void loop() {
 
 
             <p>
-            Below is the final operation, two gifs show the light turning on during calibration and the other being the true function of the circuit,
-            the LED turning on and off with the varying resistance of the photoresistor.
+            Below is the final operation, the gif on the left shoes the true function of the circuit,
+            the LED turning on and off with the varying resistance of the photoresistor while the gif 
+            on the right shows the built in LED (pin 13) light turning on during calibration as indicated in the code, 
+            and turning off signalling an end to calibration, then the PIN 9 LED turns on as the code moves out of set up and into loop.
 </p>
 <p>
 <img src="gif1.GIF" width=400></a>
