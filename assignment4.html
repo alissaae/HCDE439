@@ -12,110 +12,106 @@
     <body> 
 
         <div class="header">
-            <h1>Alissa Acheson's Assignment 3!</h1>
+            <h1>Alissa Acheson's Assignment 4!</h1>
             <p>
-            <img src="IMG_8093.jpg" width=400></a>
-            <img src="IMG_8094.jpg" width=400></a>
+            <img src="A4circ1.jpg" width=400></a>
+            <img src="A4circ2.jpg" width=400></a>
             
             </p>
             <p>
-            Above is the circuit that contains a photoresistor and 10k ohm resistor connected via A0, and a green LED with a 220 ohm resistor. 
+            Above is the circuit that contains the IR reciever module and two LEDs, one red and one yellow, they each have a 220 ohm resistor. Not pictured is the IR remote that 
+                communicates with the IR receiver module. 
 </p>
             <p>
-             <img src="a3 doc (2).jpg" width=400></a>
-             <img src="a3 doc (1).jpg" width=400></a>
+             <img src="A4scheme.jpg" width=400></a>
 
             </p>
             <p>
-            Above is the calculations for the type of resistors (220 and 10k) used and the schematic of the circuits.
-            Also, the calcuation for the possible Vouts given the variating resistance of the photoresistor, using resistances measured using a multimeter (covering the photoresistor with a cloth and then exposing it to a flashlight).
+            Above is the calculations for the type of resistor, 220, used and the schematic of the circuits used. 
             </p>
 <p>
-    Below is the Ardunio code that the board is using, first calibrating to the environments light. This 
-    is in set up, setting the minimum and maximum values. 
-    Then the code to change and constrain those values into something the LED can understand (0-225), and finally, writing to the LED what to do.
+    Below is the Ardunio code that the board is using, fading the LEDs on and off red when 5 is pressed and yellow when 2 is pressed. They stay on for 1 second then turn off. 
 </p>
 <p>
 <pre><code>
-/* Alissa Acheson A3
- * This code uses an LED hooked up to PIN ~9
- * and a photoresistor (& 10k resistor)
- * hooked up to A0 
+/*
+ * This code references this example
+ * https://www.circuitbasics.com/arduino-ir-remote-receiver-tutorial/
+ * and adds the fading on of the LEDs
  * 
  */
 
 
-//some code adapted from Examples > Analog > Calibration
-//from the arduino IDE as well as some inclass code from L4 and 5
+//calls the library IRremote
+#include <IRremote.h>
 
-int initalVal = 0;      //the value of the sensor
-int sMin = 1023;        // minimum value of the sensor
-int sMax = 0;           // maximum value of the sensor
+//sets which pin the reciver is connected to
+const int RECV_PIN = 7;
+//tells the arduino which pin the IRrecv is connected to
+IRrecv irrecv(RECV_PIN);
+//defines a variable "results" of type decode_results
+decode_results results;
+//sets the pins that the two LEDs are connected to
+const int redPin = 10;
+const int yellowPin = 9;
 
-void setup() {
-  //to tell when calibration is occuring
-  //turns on the LED built into the arduino board
-  pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);
 
-  // calibrate during the first five seconds
-  //millis returns the number of milliseconds passed since the Arduino board 
-  //began running the current program. 
-  while (millis() < 5000) {
-    //check the value
-    initalVal = analogRead(A0);
 
-    //check to see how environment values compares 
-    //to 1023
-    if (initalVal > sMax) {
-     // record the maximum value of the sensor
-      sMax = initalVal;
-    }
-
-    //check to see how environment values compares 
-    //to 0
-    if (initalVal < sMin) {
-      // record the minimum value of the sensor
-      sMin = initalVal;
-    }
-  }
-
-  // turn off the light to signal the end of the calibration period
-  digitalWrite(13, LOW);
-  //to send start the serial data collection
-  Serial.begin(9600);
+void setup(){
+  // Start the receiver
+  irrecv.enableIRIn();
+  //tells the IRrecv object to flash the LED on and off when an IR signal is received. 
+  irrecv.blink13(true);
+  //sets the pin 10 connected to red as an output
+  pinMode(redPin, OUTPUT);
+  //sets the pin 11 connected to yellow as an output
+  pinMode(yellowPin, OUTPUT);
 }
 
-void loop() {
-  //reading in the value from the photosensor, 
-  //values are between 0 and 1023
-  initalVal = analogRead(A0);
+void loop(){
+    //using the function of decode, looks at variable "results"
+    if (irrecv.decode(&results)){
+
+        //accesses the part of results variable called value
+        switch(results.value){
+          //if the value reads as this case
+          case 0xFF38C7: //Keypad button "5"
+          
+          //turn on red pin via fade
+          for (int fadeValue = 0 ; fadeValue <= 255; fadeValue += 20) {
+              // sets the value (range from 0 to 255):
+              analogWrite(redPin, fadeValue);
+              //wait 30 milliseconds to see fade
+              delay(30);
+           }
+          //wait 1 second
+          delay(1000);
+          //turn red pin off
+          digitalWrite(redPin, LOW);
+          }
+          
+        //accesses the part of results variable called value
+        switch(results.value){
+         //if the value reads as this case
+          case 0xFF18E7: //Keypad button "2"
+          
+          //turn on yellow pin via fade
+          for (int fadeValue = 0 ; fadeValue <= 255; fadeValue += 20) {
+              // sets the value (range from 0 to 255):
+              analogWrite(yellowPin, fadeValue);
+              //wait 30 milliseconds to see fade
+              delay(30);
+           }
+          //wait 1 second
+          delay(1000);
+          //turn yellow pin off
+          digitalWrite(yellowPin, LOW);
 
 
-//code for testing
-//this reads the photosensors values from A0
-//into the serial for viewing (tools-> serial monitor or plotter)
-  Serial.print("sensor = "); // label for value
-  Serial.println(initalVal); //value
-  delay(1);     //one millisecond pause
-
-//this value limits the sensor to be within a range
- initalVal = constrain(initalVal, sMin, sMax);
- 
-//map takes the constrained value and remaps it to a new range 
-//that was calibrated in the setup of this document
-//this range being one appropriate for LED brightness (0-225)
- initalVal = map(initalVal, sMin, sMax, 0, 225);
- 
-//writes to the LED in pin 9 a value from 0-225
-//0 being off and 225 being on
- analogWrite(9,initalVal);
-
-//code for testing while building:
-//is the light working?
-//digitalWrite(9, HIGH);
-
-
+        }
+   //recieve next value    
+   irrecv.resume(); 
+   }
 }
 
 </pre></code>
@@ -129,20 +125,11 @@ void loop() {
             and turning off signalling an end to calibration, then the PIN 9 LED turns on as the code moves out of set up and into loop.
 </p>
 <p>
-<img src="gif1.GIF" width=400></a>
-<img src="gif2.GIF" width=400></a>
+<img src="A4gif.GIF" width=400></a>
 </p>
 
 
-                <p>
-                                <p>
- Below is the serial monitor at the point of light change, the room was pretty light when this data was taken.
-</p>
-<p>
-<img src="sample monitor.JPG" width=800></a>
-</p>
 
-            </p>
         </div>
         
     </body>
