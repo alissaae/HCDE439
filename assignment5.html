@@ -14,8 +14,8 @@
         <div class="header">
             <h1>Alissa Acheson's Assignment 4!</h1>
             <p>
-            <img src="A4circ1.jpg" width=400></a>
-            <img src="A4circ2.jpg" width=400></a>
+            <img src="a5circ.jpg" width=400></a>
+            <img src="a5circ1.jpg" width=400></a>
             
             </p>
             <p>
@@ -43,7 +43,7 @@
 
 
 //calls the library IRremote
-#include <IRremote.h>
+#include < IRremote.h >
 
 //sets which pin the reciver is connected to
 const int RECV_PIN = 7;
@@ -51,9 +51,8 @@ const int RECV_PIN = 7;
 IRrecv irrecv(RECV_PIN);
 //defines a variable "results" of type decode_results
 decode_results results;
-//sets the pins that the two LEDs are connected to
-const int redPin = 10;
-const int yellowPin = 9;
+//sets the pin the LED strip is connected to
+const int stripPin = 9;
 
 
 
@@ -62,50 +61,40 @@ void setup(){
   irrecv.enableIRIn();
   //tells the IRrecv object to flash the LED on and off when an IR signal is received. 
   irrecv.blink13(true);
-  //sets the pin 10 connected to red as an output
-  pinMode(redPin, OUTPUT);
-  //sets the pin 11 connected to yellow as an output
-  pinMode(yellowPin, OUTPUT);
+
+  //sets the pin 9 connected to LED strip as output
+  pinMode(stripPin, OUTPUT);
 }
 
 void loop(){
     //using the function of decode, looks at variable "results"
     if (irrecv.decode(&results)){
-
-        //accesses the part of results variable called value
-        switch(results.value){
-          //if the value reads as this case
-          case 0xFF38C7: //Keypad button "5"
-          
-          //turn on red pin via fade
-          for (int fadeValue = 0 ; fadeValue <= 255; fadeValue += 20) {
-              // sets the value (range from 0 to 255):
-              analogWrite(redPin, fadeValue);
-              //wait 30 milliseconds to see fade
-              delay(30);
-           }
-          //wait 1 second
-          delay(1000);
-          //turn red pin off
-          digitalWrite(redPin, LOW);
-          }
           
         //accesses the part of results variable called value
         switch(results.value){
          //if the value reads as this case
           case 0xFF18E7: //Keypad button "2"
           
-          //turn on yellow pin via fade
-          for (int fadeValue = 0 ; fadeValue <= 255; fadeValue += 20) {
+          //turn on strip pin via fade
+          for (int fadeValue = 0 ; fadeValue <= 80; fadeValue += 5) {
               // sets the value (range from 0 to 255):
-              analogWrite(yellowPin, fadeValue);
+              analogWrite(stripPin, fadeValue);
               //wait 30 milliseconds to see fade
               delay(30);
            }
           //wait 1 second
           delay(1000);
+
+
+        }
+
+        switch(results.value){
+         //if the value reads as this case
+          case 0xFF38C7: //Keypad button "5"
+          
+
           //turn yellow pin off
-          digitalWrite(yellowPin, LOW);
+          digitalWrite(stripPin, LOW);
 
 
         }
@@ -113,17 +102,15 @@ void loop(){
    irrecv.resume(); 
    }
 }
-
 </pre></code>
 </p>
 
 
             <p>
-            Below is the final operation, the gif shows the 5 button being pressed on the IR remote, the red LED fading on, staying on for 1 second then turning off. Then the 2 button is pressed 
-                and the yellow LED fades on, stays on for 1 second then turns off. 
+            Below is the final operation, the gif shows the 2 button being pressed the LEDs fading on, then the 5 button being pressed and the LEDs switching off. 
 </p>
 <p>
-<img src="A4gif.GIF" width=400></a>
+<img src="a5gif.GIF" width=400></a>
 </p>
 
 
