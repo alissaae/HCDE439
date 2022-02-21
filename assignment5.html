@@ -30,7 +30,7 @@
             Above is the calculations for the amount of current used by the LEDs to justify the transistor use and the schematic of the circuits used. 
             </p>
 <p>
-    Below is the Ardunio code that the board is using, fading the LEDs on and off red when 5 is pressed and yellow when 2 is pressed. They stay on for 1 second then turn off. 
+    Below is the Ardunio code that the board is using, fading the LEDs on and off red when 5 is pressed and yellow when 2 is pressed. 
 </p>
 <p>
 <pre><code>
@@ -93,7 +93,7 @@ void loop(){
           case 0xFF38C7: //Keypad button "5"
           
 
-          //turn yellow pin off
+          //turn strip pin off
           digitalWrite(stripPin, LOW);
 
 
