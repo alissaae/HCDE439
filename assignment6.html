@@ -14,24 +14,22 @@
         <div class="header">
             <h1>Alissa Acheson's Assignment 6!</h1>
             <p>
-            <img src="a5circ.jpg" width=400></a>
-            <img src="a5circ1.jpg" width=400></a>
+            <img src="a6circ.jpg" width=400></a>
+            <img src="a6circ1.jpg" width=400></a>
+            <img src="a6circ2.jpg" width=400></a>
             
             </p>
             <p>
-            Above is the circuit that contains the IR reciever module and the LED strip LEDs, the LED strip is made up of 300 white LEDs, each set of 3 has a 240 ohm resistor. Not pictured is the IR remote that 
-                communicates with the IR receiver module. 
-</p>
+            Above is the circuit that contains the LED and joystick, the joystick is connected to ground, 5V power, A0 for X input, A1 for Y input, and Pin 8. The LED is connected to ground and PIN 7
+                through a 220 ohm resistor.
+                </p>
             <p>
-             <img src="a5scheme.jpg" width=800></a>
+             <img src="a6scheme.jpg" width=800></a>
 
             </p>
             <p>
-            Above is the calculations for the amount of current used by the LEDs to justify the transistor use and the schematic of the circuits used. 
+            Above is the calculations for the resistor used, and schematic of the circuit. 
             </p>
-<p>
-    Below is the Ardunio code that the board is using, fading the LEDs on and off red when 5 is pressed and yellow when 2 is pressed. 
-</p>
 <p>
     <h2>
     Arduino Code for the joystick
@@ -198,7 +196,7 @@ void loop() {
 
 </pre></code>
  <h2>
-    p5 code for light
+    p5 code for LED
 </h2>
 <pre><code>
 
@@ -274,7 +272,13 @@ void loop() {
     Below is the final operation, the joystick position affects the height and color of the webpage.
 </p>
 <p>
-<img src="A6gif.GIF" width=400></a>
+<img src="A6gif.gif" width=400></a>
+</p>
+<p>
+    Below is the final operation, the LED turned on and off by spacebar and "c" key.
+</p>
+<p>
+<img src="A6gif2.GIF" width=400></a>
 </p>
 
 
