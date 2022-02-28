@@ -12,7 +12,7 @@
     <body> 
 
         <div class="header">
-            <h1>Alissa Acheson's Assignment 5!</h1>
+            <h1>Alissa Acheson's Assignment 6!</h1>
             <p>
             <img src="a5circ.jpg" width=400></a>
             <img src="a5circ1.jpg" width=400></a>
@@ -33,81 +33,136 @@
     Below is the Ardunio code that the board is using, fading the LEDs on and off red when 5 is pressed and yellow when 2 is pressed. 
 </p>
 <p>
+    <h2>
+    Arduino Code for the joystick
+</h2>
 <pre><code>
-/*
- * This code references this example
- * https://www.circuitbasics.com/arduino-ir-remote-receiver-tutorial/
- * and adds the fading on of the LEDs
- * 
- */
+//joystick code to communicate with web
+    
+  int x = A0;   // x positon of joystick A0 pin
+  int y = A1;   // y positon of joystick A1 pin
+  int xval = 0; // sart at 0
+  int yval = 0; // start at 0
+    
+  void setup() {
+      // start serial at 9600 baud
+      Serial.begin(9600); 
+      // set the timeout for parseInt
+      Serial.setTimeout(10); 
+  }
+  
+  void loop() {
+      // read A0 pin
+      xval = analogRead(x); 
+      // read A1 pin
+      yval = analogRead(y); 
+
+      // all below prints to console
+      Serial.print("[");  
+      Serial.print(xval); 
+      Serial.print(",");  
+      Serial.print(yval); 
+      Serial.println("]");  
+      
+  }  
+</pre></code>
+ <h2>
+    P5 Code for the joystick
+</h2>
+<pre><code>
+//the pieces of the code below was referenced from https://github.com/machineagency/hcde439/blob/master/p5-examples-and-addons/hcde439-example2/sketch.js
+var serial; // variable to hold an instance of the serialport library
+var portName = 'COM5' //rename to the name of your port
+var dataarray = []; //some data coming in over serial!
+var xPos = 0;
 
 
-//calls the library IRremote
-#include < IRremote.h >
-
-//sets which pin the reciver is connected to
-const int RECV_PIN = 7;
-//tells the arduino which pin the IRrecv is connected to
-IRrecv irrecv(RECV_PIN);
-//defines a variable "results" of type decode_results
-decode_results results;
-//sets the pin the LED strip is connected to
-const int stripPin = 9;
-
-
-
-void setup(){
-  // Start the receiver
-  irrecv.enableIRIn();
-  //tells the IRrecv object to flash the LED on and off when an IR signal is received. 
-  irrecv.blink13(true);
-
-  //sets the pin 9 connected to LED strip as output
-  pinMode(stripPin, OUTPUT);
+function setup() {
+  serial = new p5.SerialPort();       // make a new instance of the serialport library
+  serial.on('list', printList);       // set a callback function for the serialport list event
+  serial.on('connected', serverConnected); // callback for connecting to the server
+  serial.on('open', portOpen);        // callback for the port opening
+  serial.on('data', serialEvent);     // callback for when new data arrives
+  serial.on('error', serialError);    // callback for errors
+  serial.on('close', portClose);      // callback for the port closing
+ 
+  serial.list();                      // list the serial ports
+  serial.open(portName);              // open a serial port
+  createCanvas(1200, 800);
+  background(156,175,136);;
+}
+ 
+// get the list of ports:
+function printList(portList) {
+ // portList is an array of serial port names
+ for (var i = 0; i < portList.length; i++) {
+ // Display the list the console:
+   print(i + " " + portList[i]);
+ }
 }
 
-void loop(){
-    //using the function of decode, looks at variable "results"
-    if (irrecv.decode(&results)){
-          
-        //accesses the part of results variable called value
-        switch(results.value){
-         //if the value reads as this case
-          case 0xFF18E7: //Keypad button "2"
-          
-          //turn on strip pin via fade
-          for (int fadeValue = 0 ; fadeValue <= 80; fadeValue += 5) {
-              // sets the value (range from 0 to 255):
-              analogWrite(stripPin, fadeValue);
-              //wait 30 milliseconds to see fade
-              delay(30);
-           }
-          //wait 1 second
-          delay(1000);
+function serverConnected() {
+  print('connected to server.');
+}
+ 
+function portOpen() {
+  print('the serial port opened.')
+}
+ 
+function serialError(err) {
+  print('Something went wrong with the serial port. ' + err);
+}
+ 
+function portClose() {
+  print('The serial port closed.');
+}
 
+function serialEvent() {
+  if (serial.available()) {
+    var datastring = serial.readLine(); // readin some serial
+    var newarray; 
+    try {
+      newarray = JSON.parse(datastring); // can we parse the serial
+      } catch(err) {
+          //console.log(err);
+    }
+    if (typeof(newarray) == 'object') {
+      dataarray = newarray;
+    }
+    console.log("got back " + datastring);
+  } 
+}
 
-        }
+function graphData(newData) {
+  // map the range of the input to the window height:
+  var yPos = map(newData, 0, 1023, 0, height);
+  // draw the line
+  line(xPos, height, xPos, height - yPos);
+  // at the edge of the screen, go back to the beginning:
+  if (xPos >= width) {
+    xPos = 0;
+    // reset the background:
+    background(156,175,136); // sage green background
+  } else {
+    // pass
+  }
+}
 
-        switch(results.value){
-         //if the value reads as this case
-          case 0xFF38C7: //Keypad button "5"
-          
+function draw() {
 
-          //turn strip pin off
-          digitalWrite(stripPin, LOW);
+  stroke('rgb(204,85,0)'); // burnt orange
+  graphData(dataarray[0]);
 
-
-        }
-   //recieve next value    
-   irrecv.resume(); 
-   }
+  stroke('rgb(255,165,0)'); // orange
+  graphData(dataarray[1]);
+  xPos++;
 }
 </pre></code>
 </p>
 
 
 <p>
-    Below is the final operation, the gif shows the 2 button being pressed the LEDs fading on, then the 5 button being pressed and the LEDs switching off. 
+    Below is the final operation, the joystick position affects the height and color of the webpage.
 </p>
 <p>
 <img src="a5gif.GIF" width=400></a>
