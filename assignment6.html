@@ -158,6 +158,113 @@ function draw() {
   xPos++;
 }
 </pre></code>
+ <h2>
+    Ardunio code for LED
+</h2>
+<pre><code>
+//led connected to pin 7
+const int LED = 7;      
+
+
+void setup() {
+  // Begin running serial monitor.
+  Serial.begin(9600); 
+  // Set the timeout for parseInt      
+  Serial.setTimeout(10);
+  // set LED output
+  pinMode(LED, OUTPUT);     
+}
+
+void loop() {
+  //if serial data exists, read data
+  if (Serial.available() > 0) {       
+    int inByte = Serial.read();
+    //send back data as raw binary       
+    Serial.write(inByte);
+    //if space bar pressed             
+    if (inByte == 32) {
+      //turn on red LED               
+      digitalWrite(LED, HIGH);    
+      
+    }
+    //if "c" key pressed 
+    if(inByte == 99) {
+      //turn off LED       
+        digitalWrite(LED, LOW);     
+
+    }
+  }
+}
+
+</pre></code>
+ <h2>
+    p5 code for light
+</h2>
+<pre><code>
+
+ var serial; // variable to hold an instance of the serialport library
+ var portName = 'COM5' //rename to the name of your port
+ var inData;  // variable to store data
+ 
+ 
+ function setup() {
+     serial = new p5.SerialPort();       // make a new instance of the serialport library
+     serial.on('list', printList);       // set a callback function for the serialport list event
+     serial.on('connected', serverConnected); // callback for connecting to the server
+     serial.on('open', portOpen);        // callback for the port opening
+     serial.on('data', serialEvent);     // callback for when new data arrives
+     serial.on('error', serialError);    // callback for errors
+     serial.on('close', portClose);      // callback for the port closing
+ 
+     serial.list();                      // list the serial ports
+     serial.open(portName);              // open a serial port
+     createCanvas(1200, 800);            // create a 1200x800 createCanvas
+     textSize(95);                       // making the text size large
+ }
+ 
+ // get the list of ports:
+ function printList(portList) {
+     // portList is an array of serial port names
+     for (var i = 0; i < portList.length; i++) {
+   // Display the list the console:
+   print(i + " " + portList[i]);
+     }
+ }
+ 
+ function serverConnected() {
+     print('connected to server.');
+ }
+ 
+ function portOpen() {
+     print('the serial port opened.')
+ }
+ 
+ function serialError(err) {
+     print('Something went wrong with the serial port. ' + err);
+ }
+ 
+ function portClose() {
+     print('The serial port closed.');
+ }
+ 
+ function serialEvent() {
+     if (serial.available()) {               // if there's serial data
+        inData = serial.read();              // read the data
+        console.log("got back " + inData);   // log the read data
+     }
+ }
+ 
+ function keyPressed() {
+     //console.log("writing key");
+     serial.write(key);    // write key data to serial
+ }
+ 
+ function draw() {
+     background(0);  //black background
+     fill(255);      // white text
+     text("inByte code: " + inData, 100, 400);   // display this text in this specified area of the canvas
+ }
+</pre></code>
 </p>
 
  <h2>
