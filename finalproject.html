@@ -32,237 +32,125 @@
             </p>
 <p>
     <h2>
-    Arduino Code for the joystick
+    Arduino Code
 </h2>
 <pre><code>
-//joystick code to communicate with web
-    
-  int x = A0;   // x positon of joystick A0 pin
-  int y = A1;   // y positon of joystick A1 pin
-  int xval = 0; // sart at 0
-  int yval = 0; // start at 0
-    
-  void setup() {
-      // start serial at 9600 baud
-      Serial.begin(9600); 
-      // set the timeout for parseInt
-      Serial.setTimeout(10); 
-  }
-  
-  void loop() {
-      // read A0 pin
-      xval = analogRead(x); 
-      // read A1 pin
-      yval = analogRead(y); 
+/*
+ *
+ * The array/noise accomodating code was sourced from here:
+ * Tutorial page: https://arduinogetstarted.com/tutorials/arduino-ultrasonic-sensor
+ */
 
-      // all below prints to console
-      Serial.print("[");  
-      Serial.print(xval); 
-      Serial.print(",");  
-      Serial.print(yval); 
-      Serial.println("]");  
-      
-  }  
-</pre></code>
- <h2>
-    P5 Code for the joystick
-</h2>
-<pre><code>
-//the pieces of the code below was referenced from https://github.com/machineagency/hcde439/blob/master/p5-examples-and-addons/hcde439-example2/sketch.js
-var serial; // variable to hold an instance of the serialport library
-var portName = 'COM5' //rename to the name of your port
-var dataarray = []; //some data coming in over serial!
-var xPos = 0;
+#define TRIG_PIN 9 // TRIG pin
+#define ECHO_PIN 8 // ECHO pin
 
-
-function setup() {
-  serial = new p5.SerialPort();       // make a new instance of the serialport library
-  serial.on('list', printList);       // set a callback function for the serialport list event
-  serial.on('connected', serverConnected); // callback for connecting to the server
-  serial.on('open', portOpen);        // callback for the port opening
-  serial.on('data', serialEvent);     // callback for when new data arrives
-  serial.on('error', serialError);    // callback for errors
-  serial.on('close', portClose);      // callback for the port closing
- 
-  serial.list();                      // list the serial ports
-  serial.open(portName);              // open a serial port
-  createCanvas(1200, 800);
-  background(156,175,136);;
-}
- 
-// get the list of ports:
-function printList(portList) {
- // portList is an array of serial port names
- for (var i = 0; i < portList.length; i++) {
- // Display the list the console:
-   print(i + " " + portList[i]);
- }
-}
-
-function serverConnected() {
-  print('connected to server.');
-}
- 
-function portOpen() {
-  print('the serial port opened.')
-}
- 
-function serialError(err) {
-  print('Something went wrong with the serial port. ' + err);
-}
- 
-function portClose() {
-  print('The serial port closed.');
-}
-
-function serialEvent() {
-  if (serial.available()) {
-    var datastring = serial.readLine(); // readin some serial
-    var newarray; 
-    try {
-      newarray = JSON.parse(datastring); // can we parse the serial
-      } catch(err) {
-          //console.log(err);
-    }
-    if (typeof(newarray) == 'object') {
-      dataarray = newarray;
-    }
-    console.log("got back " + datastring);
-  } 
-}
-
-function graphData(newData) {
-  // map the range of the input to the window height:
-  var yPos = map(newData, 0, 1023, 0, height);
-  // draw the line
-  line(xPos, height, xPos, height - yPos);
-  // at the edge of the screen, go back to the beginning:
-  if (xPos >= width) {
-    xPos = 0;
-    // reset the background:
-    background(156,175,136); // sage green background
-  } else {
-    // pass
-  }
-}
-
-function draw() {
-
-  stroke('rgb(204,85,0)'); // burnt orange
-  graphData(dataarray[0]);
-
-  stroke('rgb(255,165,0)'); // orange
-  graphData(dataarray[1]);
-  xPos++;
-}
-</pre></code>
- <h2>
-    Ardunio code for LED
-</h2>
-<pre><code>
-//led connected to pin 7
-const int LED = 7;      
-
+float filterArray[20]; // array to store data samples from sensor
+float distance; // store the distance from sensor
+//minimum sensor distance in cm
+int sensorMin = 5;
+//max sensor distance in cm
+int sensorMax = 30;
+int ledPin = 11;
+boolean onoff = false;
 
 void setup() {
-  // Begin running serial monitor.
-  Serial.begin(9600); 
-  // Set the timeout for parseInt      
-  Serial.setTimeout(10);
-  // set LED output
-  pinMode(LED, OUTPUT);     
+  // begin serial port
+  Serial.begin (9600);
+
+  // configure the trigger and echo pins to output mode
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
 }
 
 void loop() {
-  //if serial data exists, read data
-  if (Serial.available() > 0) {       
-    int inByte = Serial.read();
-    //send back data as raw binary       
-    Serial.write(inByte);
-    //if space bar pressed             
-    if (inByte == 32) {
-      //turn on red LED               
-      digitalWrite(LED, HIGH);    
-      
-    }
-    //if "c" key pressed 
-    if(inByte == 99) {
-      //turn off LED       
-        digitalWrite(LED, LOW);     
+  // take multiple measurements and store in an array
+  for (int sample = 0; sample < 20; sample++) {
+    //get samples using the float method
+    filterArray[sample] = ultrasonicMeasure();
+    //wait -- to avoid interferance
+    delay(30); 
+  }
 
+  // put array in ascending order
+  for (int i = 0; i < 19; i++) {
+    for (int j = i + 1; j < 20; j++) {
+      if (filterArray[i] > filterArray[j]) {
+        float swap = filterArray[i];
+        filterArray[i] = filterArray[j];
+        filterArray[j] = swap;
+      }
     }
   }
+
+  // 3. FILTERING NOISE
+  // + the five smallest samples are considered as noise -> ignore it
+  // + the five biggest  samples are considered as noise -> ignore it
+  // ----------------------------------------------------------------
+  // => get average of the 10 middle samples (from 5th to 14th)
+  double sum = 0;
+  for (int sample = 5; sample < 15; sample++) {
+    sum += filterArray[sample];
+  }
+
+  distance = sum / 10;
+
+  // print the value to Serial Monitor
+  Serial.print("distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  //if the lamp is in starting position of false(is off) and hand within 5 cm 
+  if (!onoff && distance < sensorMin) {
+        // fade the LED using the calibrated value:
+        analogWrite(ledPin, 50);
+        //wait 5 sec
+        delay(5000);
+        //indicate lamp is on
+        onoff = true;
+        
+  //if the lamp is on (onoff is true) and hand within 5 cm , turn lamp off
+  } else if (onoff && distance < sensorMin) {
+    
+      //turn lamp off
+      analogWrite(ledPin, 0);
+      //set onoff to false, indicating lamp is off
+      onoff = false;
+      //wait 5 sec
+      delay(5000);
+
+      
+    //if lamp is on and the distance is within range, map the distance value to the 
+    //brightness
+  } else if (onoff && distance <= sensorMax && distance >= sensorMin) {
+
+      //create value for light that maps to distance measurement
+      int sensorValue  = map(distance, sensorMin, sensorMax, 0, 255);
+      //change brightness
+      analogWrite(ledPin, sensorValue);
+      //wait 2 seconds
+      delay(2000);
+    
+  }
+  
 }
 
-</pre></code>
- <h2>
-    p5 code for LED
-</h2>
-<pre><code>
+//method to use get distance measurements to be put in the array above
+float ultrasonicMeasure() {
+  // generate 10-microsecond pulse to TRIG pin
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
 
- var serial; // variable to hold an instance of the serialport library
- var portName = 'COM5' //rename to the name of your port
- var inData;  // variable to store data
- 
- 
- function setup() {
-     serial = new p5.SerialPort();       // make a new instance of the serialport library
-     serial.on('list', printList);       // set a callback function for the serialport list event
-     serial.on('connected', serverConnected); // callback for connecting to the server
-     serial.on('open', portOpen);        // callback for the port opening
-     serial.on('data', serialEvent);     // callback for when new data arrives
-     serial.on('error', serialError);    // callback for errors
-     serial.on('close', portClose);      // callback for the port closing
- 
-     serial.list();                      // list the serial ports
-     serial.open(portName);              // open a serial port
-     createCanvas(1200, 800);            // create a 1200x800 createCanvas
-     textSize(95);                       // making the text size large
- }
- 
- // get the list of ports:
- function printList(portList) {
-     // portList is an array of serial port names
-     for (var i = 0; i < portList.length; i++) {
-   // Display the list the console:
-   print(i + " " + portList[i]);
-     }
- }
- 
- function serverConnected() {
-     print('connected to server.');
- }
- 
- function portOpen() {
-     print('the serial port opened.')
- }
- 
- function serialError(err) {
-     print('Something went wrong with the serial port. ' + err);
- }
- 
- function portClose() {
-     print('The serial port closed.');
- }
- 
- function serialEvent() {
-     if (serial.available()) {               // if there's serial data
-        inData = serial.read();              // read the data
-        console.log("got back " + inData);   // log the read data
-     }
- }
- 
- function keyPressed() {
-     //console.log("writing key");
-     serial.write(key);    // write key data to serial
- }
- 
- function draw() {
-     background(0);  //black background
-     fill(255);      // white text
-     text("inByte code: " + inData, 100, 400);   // display this text in this specified area of the canvas
- }
+  // measure duration of pulse from ECHO pin
+  float duration_us = pulseIn(ECHO_PIN, HIGH);
+
+  // calculate the distance
+  float distance_cm = 0.017 * duration_us;
+
+  return distance_cm;
+}
 </pre></code>
+
 </p>
 
  <h2>
