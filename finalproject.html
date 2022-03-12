@@ -63,6 +63,13 @@
     <h2>
     Arduino Code
 </h2>
+<p>
+    Below is the code that runs the lamp. The lamp turns on/off when hand is within 5 cm of the sensor, when it turns on its at a default 50/255. 
+    Once the lamp is on, the brightness can be changed by placing the hand within 30 cm of the sensor, Farther away -> more bright, Closer -> dimmer. 30 cm was chosen based on 
+    my own testing, it works as a reasonable distance, too close and the lamp turns off, to far and other things may trigger the lamp. 
+    There is also a delay between when the sensor can take a measurement, to prevent abrasive flashing. The distance measurements are also controlled for noise, taking 20 readings & removing the extremely low/high values (lowest 5 and highest 5) then
+    averaging the middle 10. 
+
 <pre><code>
 /*
  *
@@ -189,6 +196,15 @@ float ultrasonicMeasure() {
     Final Functionality
 </h2>
 <p>
+    This is what the lamp looks like fully assembled, the front and back. The back being where the sensor and power source come out. 
+</p>
+<p>
+    <img src="finalfront (1).jpeg" width=400></a>
+    <img src="finalfront (2).jpeg" width=400></a>
+</p>
+    
+<p>
+    
     Below is the final operation, the lamp turning on with hand within 5 cm.
 </p>
 <p>
