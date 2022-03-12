@@ -14,22 +14,25 @@
         <div class="header">
             <h1>Final Project</h1>
             <p>
-            <img src="a6circ.jpg" width=400></a>
-            <img src="a6circ1.jpg" width=400></a>
+                <img src="a6circ.jpg" width=400></a>
+        </p>
+            <p>
+                My concept for this project was a lamp that would change brightness and would not need to be touched/or switched like a typical lamp. Initially my idea was to have it controlled by a
+                IR reciever and remote, but the fading/timing needed for fading did not work with that piece of hardware. I pivoted instead to use an ultrasonic sensor where the distance of your hand from the lamp would determine 
+                the brightness as well as turn it on and off. 
+            </p>
+            <h2>
+             Circuit: Schematic and Calculations
+            </h2>
+            <p>
+           
             <img src="a6circ2.jpg" width=400></a>
             
             </p>
             <p>
-            Above is the circuit that contains the LED and joystick, the joystick is connected to ground, 5V power, A0 for X input, A1 for Y input, and Pin 8. The LED is connected to ground and PIN 7
-                through a 220 ohm resistor.
+            Above is the circuit that contains the Ultrasonic sensor, the N-MOSTFET transitor, the arduino and lED strip. The 3 LED schematic is one of 100 on the strip. 
                 </p>
-            <p>
-             <img src="a6scheme.jpg" width=800></a>
 
-            </p>
-            <p>
-            Above is the calculations for the resistor used, and schematic of the circuit. 
-            </p>
 <p>
     <h2>
     Arduino Code
@@ -38,7 +41,7 @@
 /*
  *
  * The array/noise accomodating code was sourced from here:
- * Tutorial page: https://arduinogetstarted.com/tutorials/arduino-ultrasonic-sensor
+ * https://arduinogetstarted.com/tutorials/arduino-ultrasonic-sensor
  */
 
 #define TRIG_PIN 9 // TRIG pin
@@ -50,6 +53,7 @@ float distance; // store the distance from sensor
 int sensorMin = 5;
 //max sensor distance in cm
 int sensorMax = 30;
+//led pin control
 int ledPin = 11;
 boolean onoff = false;
 
@@ -74,7 +78,9 @@ void loop() {
   // put array in ascending order
   for (int i = 0; i < 19; i++) {
     for (int j = i + 1; j < 20; j++) {
+      //compare values
       if (filterArray[i] > filterArray[j]) {
+        //place in order
         float swap = filterArray[i];
         filterArray[i] = filterArray[j];
         filterArray[j] = swap;
@@ -157,13 +163,13 @@ float ultrasonicMeasure() {
     Final Functionality
 </h2>
 <p>
-    Below is the final operation, the joystick position affects the height and color of the webpage.
+    Below is the final operation, the lamp turning on with hand within 5 cm.
 </p>
 <p>
 <img src="A6gif.gif" width=400></a>
 </p>
 <p>
-    Below is the final operation, the LED turned on and off by spacebar and "c" key.
+    Below is the final operation, the lamp changing brightness with hand's distance changing
 </p>
 <p>
 <img src="A6gif2.GIF" width=400></a>
